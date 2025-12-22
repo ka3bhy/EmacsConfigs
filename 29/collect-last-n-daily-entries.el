@@ -1,8 +1,3 @@
-;; This buffer is for text that is not saved, and for Lisp evaluation.
-;; To create a file, visit it with C-x C-f and enter text in its buffer.
-
-
-
 (defun collect-last-n-daily-entries (n)
   "Collect the previous N daily entries ending at POINT into a new buffer.
 Assumes POINT marks the end of the daily logs (other info follows and must be excluded).
@@ -59,5 +54,4 @@ and continues until the next such heading or the end boundary (POINT)."
       (goto-char (point-min))
       (read-only-mode 1))
     (pop-to-buffer dest)))
-collect-last-n-daily-entries
 
