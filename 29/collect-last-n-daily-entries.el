@@ -42,6 +42,12 @@ and continues until the next such heading or the end boundary (POINT)."
     (with-current-buffer dest
       (read-only-mode -1)
       (erase-buffer)
+      (insert "Summarize the following daily work notes into a clean weekly report using plain 7-bit ASCII. Use these sections:\n")
+      (insert "- KEY ACTIVITIES\n")
+      (insert "- ISSUES & RESOLUTIONS\n")
+      (insert "- MEETINGS\n")
+      (insert "- NEXT STEPS\n")
+      (insert "Do not include any special characters or UTF-8 symbols. Keep the formatting consistent with clear headers and dashed separators.\n\n")
       (insert "WEEKLY REPORT (last ")
       (insert (number-to-string (length entries)))
       (insert " days)\n")
@@ -54,4 +60,5 @@ and continues until the next such heading or the end boundary (POINT)."
       (goto-char (point-min))
       (read-only-mode 1))
     (pop-to-buffer dest)))
+
 
