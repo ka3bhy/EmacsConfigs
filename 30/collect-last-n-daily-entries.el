@@ -1,4 +1,3 @@
-
 (defun collect-last-n-daily-entries (n)
   "Collect the previous N daily entries ending at POINT into a new buffer.
 Assumes POINT marks the end of the daily logs (other info follows and must be excluded).
