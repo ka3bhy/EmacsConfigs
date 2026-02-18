@@ -66,29 +66,65 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; setup a special function to open my rod.rod.org file for logging.
-(defun rodstart()
-  "This function will open roddid and setup for an entry for today."
+(defun rodstart ()
+  "Open Rod.did.org and append to today's entry.
+
+If a top-level heading starting with today's date exists (e.g. \"* 02-18-2026\"
+or \"* 02-18-2026 Out Sick\"), reveal it and append at the end of its entry
+(right before the next top-level heading).
+
+If it does not exist, insert a new \"* MM-DD-YYYY\" heading immediately ABOVE
+the star separator line (\"* ******...\"), which marks the start of the footer/TODO area."
   (interactive)
-  ;;;; (find-file "$USERPROFILE/Documents/Rod.did.org")
-  (find-file "/mnt/c/Users/RCLAYTON/Documents/Org/Rod.did.org")
-  (goto-char (point-min)) ; In case we run it while the file is open.
-  (if (search-forward (concat "* " (format-time-string "%m-%d-%Y")) nil t)
-    (progn
-      (org-beginning-of-line)
-      (org-show-entry)
-      (search-forward-regexp "^\*")
-      (search-forward-regexp "^\*")
-      (forward-line -1) ; go up ine line.
-      (end-of-line))
-    (progn
-      (end-of-buffer)
-      (search-backward-regexp "^\* [[:digit:]]+-[[:digit:]]+-[[:digit:]]+")
-      (org-cycle)
-      (end-of-line)
-      (search-forward-regexp "^\*")
-      (goto-char (- (point) 2))
-      (org-insert-heading)
-      (insert (format-time-string "%m-%d-%Y") " "))))
+  (let* ((file "/mnt/c/Users/RCLAYTON/Documents/Org/Rod.did.org")
+         (today (format-time-string "%m-%d-%Y"))
+         ;; Matches headings like:
+         ;;   * 02-17-2026
+         ;;   * 02-18-2026 Out Sick
+         (today-re (concat "^\\* " (regexp-quote today) "\\b"))
+         ;; Your footer boundary line:
+         ;;   * *******************************************************************
+         (starline-re "^\\* \\*\\{10,\\}.*$"))
+    (find-file file)
+    (goto-char (point-min))
+
+    (if (re-search-forward today-re nil t)
+        ;; ---------------- Found today's heading: append to end of entry ----------------
+        (progn
+          (org-back-to-heading t)
+          (org-show-entry)
+          (org-show-subtree)
+
+          ;; Move to the end of today's entry (before next top-level heading).
+          (forward-line 1)
+          (if (re-search-forward "^\\* " nil t)
+              (progn
+                (beginning-of-line)
+                ;; Remove trailing blank lines so we append neatly.
+                (skip-chars-backward "\n")
+                (end-of-line)
+                (insert "\n"))
+            ;; No next heading: append at end of buffer.
+            (goto-char (point-max))
+            (unless (bolp) (insert "\n"))))
+
+      ;; ---------------- Not found: insert new heading ABOVE star line ----------------
+      (progn
+        (goto-char (point-min))
+        (if (re-search-forward starline-re nil t)
+            (beginning-of-line)
+          ;; If star line not found for some reason, fall back to end-of-file.
+          (goto-char (point-max))
+          (unless (bolp) (insert "\n")))
+
+        ;; Keep formatting tidy: ensure a blank line before the new heading.
+        (unless (or (bobp) (looking-back "\n\n" nil))
+          (insert "\n"))
+
+        ;; Insert new date heading and place point on the blank body line ready to type.
+        (insert "* " today "\n\n")
+        (forward-line -1)
+        (end-of-line)))))
 
 ; Open rod.org to the current date ready for new entries
 (define-key global-map (kbd "<f5>") 'rodstart)
