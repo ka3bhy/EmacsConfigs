@@ -122,9 +122,9 @@ the star separator line (\"* ******...\"), which marks the start of the footer/T
           (insert "\n"))
 
         ;; Insert new date heading and place point on the blank body line ready to type.
-        (insert "* " today "\n\n")
-        (forward-line -1)
-        (end-of-line)))))
+        (insert "* " today "  \n")
+        ;; put the back the cursor up to the end of the previous line with the date.
+        (backward-char)))))
 
 ; Open rod.org to the current date ready for new entries
 (define-key global-map (kbd "<f5>") 'rodstart)
@@ -135,7 +135,7 @@ the star separator line (\"* ******...\"), which marks the start of the footer/T
 ; define key F12 to start calc
 (define-key global-map (kbd "<f12>") 'calc)
 
-; Used to convert Teams Texts from Susan for DHCP reservations to tab delimited and correct MAC format.
+; Used to convert Teams Texts from Susan for DHCP reservations (HSM) to tab delimited and correct MAC format.
 (defun convert-to-tabbed-mac-dash-lower (start end)
   "Convert selected text to tab-separated format, replace colons in MAC address with dashes, and convert MAC to lowercase."
   (interactive "r")
@@ -146,6 +146,20 @@ the star separator line (\"* ******...\"), which marks the start of the footer/T
     (delete-region start end)
     (insert new-text)))
 
+(defun rodney/diameter-from-gauge (gauge)
+  "Compute Diameter (inches) ≈ 1.6699 × (1 / ∛Gauge).
+
+Interactively prompts for GAUGE (a positive number) and displays
+the resulting diameter in the echo area."
+  (interactive "nEnter Gauge (positive number): ")
+  (unless (and (numberp gauge) (> gauge 0))
+    (user-error "Gauge must be a positive number"))
+  (let* ((diameter (/ 1.6699 (expt gauge (/ 1.0 3.0)))))
+    (message "Diameter (inches) ≈ %.6f  (Gauge=%g)" diameter gauge)
+    diameter))
+
 ; get rod did entries from the last n days for weekly accomplishments report
 (load-file "/home/rod/.emacs.d/collect-last-n-daily-entries.el")
 
+; Setup abbrev mode for org mode
+(load-file "/home/rod/.emacs.d/abbrev.el")
