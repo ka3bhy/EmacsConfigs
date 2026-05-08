@@ -24,7 +24,6 @@
   (insert "Ran the afternoon acounts process.\n\n"))
 (global-set-key (kbd "<f7>") 'insert-accounts-process)
 
-
 ;; Setup a key to turn on line numbering
 (define-key global-map (kbd "<f8>") 'linum-mode)
 
